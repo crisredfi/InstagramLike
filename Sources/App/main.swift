@@ -21,8 +21,6 @@ drop.get("version") { request in
         //return  version
         let connection = try postgreSQL.makeConnection()
         let results = try postgreSQL.execute("SELECT * FROM instagram_post")
-
-        print("\(results)")
         return "hello world"
     } catch {
         return "NO DB connection"
@@ -30,19 +28,41 @@ drop.get("version") { request in
 }
 
 drop.post("addPost") { request in
-
-    guard let name = request.data["name"]?.string else {
+    guard let name = request.data["name"]?.string ,
+    let userOwnwer = request.data["userOwner"]?.string else {
         throw Abort.badRequest
     }
+
     do {
         let connection = try postgreSQL.makeConnection()
-        let result = try postgreSQL.execute("Insert INTO instagram_post(name) VALUES('\(name)')")
+        let result = try postgreSQL.execute("Insert INTO instagram_post(post_description, user_owner) VALUES('\(name)', '\(userOwnwer)')")
         return Response(status: .ok)
     } catch {
         throw Abort.serverError
     }
-
 }
+
+
+drop.get("getPosts", Int.self) { request, userID in
+     do {
+            let connection = try postgreSQL.makeConnection()
+            let result = try postgreSQL.execute("Select * From instagram_post where user_owner = \(userID)")
+
+        var newArray = [JSON]()
+
+        for (i, resultRow) in result.enumerated() {
+            let newRow = try JSON(node: resultRow)
+            newArray.append(newRow)
+        }
+
+
+        return try JSON(node: try JSON( node: newArray))
+     } catch {
+            throw Abort.serverError
+        }
+}
+
+
 
 
 drop.run()
