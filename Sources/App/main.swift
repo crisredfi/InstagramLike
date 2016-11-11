@@ -56,9 +56,9 @@ drop.get("version") { request in
                     let price = dict.object?["price"]?.float
 
                     do {
-                        let connection = try postgreSQL.makeConnection()
+                     //   let connection = try postgreSQL.makeConnection()
 
-                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('\(name)', '\(price)', '\(lat)', '\(long)', '\(gas.rawValue)')")
+                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('hello', '123', '1234', '12354', 'GNC')")
                     } catch {
                         print("error executing")
                         return "errorrr"
