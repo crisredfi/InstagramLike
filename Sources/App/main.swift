@@ -1,7 +1,7 @@
 import Vapor
 import PostgreSQL
 import HTTP
-//import Foundation
+import Foundation
 
 enum gasStations: String {
     case GNC
@@ -29,51 +29,51 @@ let postgreSQL =  PostgreSQL.Database(
     password: "jYubKAYyMzhxU4fg_WgFLvp3UE"
 )
 
-//drop.get("version") { request in
-//
-//    do {
-//
-//        //let version = try postgreSQL.execute("SELECT version()")
-//        //return  version
-//        let session = URLSession.shared
-//        for gas in gasStations.allValues {
-//            let request = NSMutableURLRequest(url: URL(string:"http://gas.saliou.name/json/latest/\(gas.rawValue).json")!)
-//            let task = session.dataTask(with: request as URLRequest) { (data, response, error) in
-//                guard let jsonWithObjectRoot = try? JSONSerialization.jsonObject(with: data!, options: []) else {
-//                    return
-//                }
-//                do {
-//                    let connection = try postgreSQL.makeConnection()
-//                    let _ = try postgreSQL.execute("DELETE FROM gas_station type='\(gas.rawValue)'")
-//                } catch {
-//
-//                }
-//                for dict in jsonWithObjectRoot as! [[String: AnyObject]] {
-//                    let lat = dict["lng"] as! Float
-//                    let long = dict["lat"] as! Float // lat long are wrong in the py server
-//                    let name = dict["name"] as! String
-//                    let price = dict["price"] as! Float
-//
-//                    do {
-//                        let connection = try postgreSQL.makeConnection()
-//
-//                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('"+name+"', '\(price)', '\(lat)', '\(long)', '\(gas.rawValue)')")
-//                    } catch {
-//                        print("error executing")
-//                        
-//                    }
-//                    
-//                }
-//            }
-//            
-//            task.resume()
-//        }
-//
-//        return "hello world"
-//    } catch {
-//        return "NO DB connection"
-//    }
-//}
+drop.get("version") { request in
+
+    do {
+
+        //let version = try postgreSQL.execute("SELECT version()")
+        //return  version
+        let session = URLSession.shared
+        for gas in gasStations.allValues {
+            let request = NSMutableURLRequest(url: URL(string:"http://gas.saliou.name/json/latest/\(gas.rawValue).json")!)
+            let task = session.dataTask(with: request as URLRequest) { (data, response, error) in
+                guard let jsonWithObjectRoot = try? JSONSerialization.jsonObject(with: data!, options: []) else {
+                    return
+                }
+                do {
+                    let connection = try postgreSQL.makeConnection()
+                    let _ = try postgreSQL.execute("DELETE FROM gas_station type='\(gas.rawValue)'")
+                } catch {
+
+                }
+                for dict in jsonWithObjectRoot as! [[String: AnyObject]] {
+                    let lat = dict["lng"] as! Float
+                    let long = dict["lat"] as! Float // lat long are wrong in the py server
+                    let name = dict["name"] as! String
+                    let price = dict["price"] as! Float
+
+                    do {
+                        let connection = try postgreSQL.makeConnection()
+
+                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('"+name+"', '\(price)', '\(lat)', '\(long)', '\(gas.rawValue)')")
+                    } catch {
+                        print("error executing")
+                        
+                    }
+                    
+                }
+            }
+            
+            task.resume()
+        }
+
+        return "hello world"
+    } catch {
+        return "NO DB connection"
+    }
+}
 
 drop.post("addPost") { request in
     guard let name = request.data["name"]?.string ,
