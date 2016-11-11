@@ -1,26 +1,79 @@
 import Vapor
 import PostgreSQL
 import HTTP
+import Foundation
+
+enum gasStations: String {
+    case GNC
+    case GPR
+    case G98
+    case GOA
+    case NGO
+    case GOB
+    case GOC
+    case BIO
+    case G95
+    case BIE
+    case GLP
+    static let allValues = [GNC, GPR, G98, GOA, NGO, GOB, GOC, BIO, G95, BIE, GLP]
+//    static let allValues = [GNC]
+
+}
 
 let drop = Droplet()
 let postgreSQL =  PostgreSQL.Database(
-    dbname: "Instagram",
+    dbname: "GasStations",
     user: "crisredfi",
     password: ""
 )
-//drop.get { req in
-//    return try drop.view.make("welcome", [
-//    	"message": drop.localization[req.lang, "welcome", "title"]
-//    ])
-//}
-//
-//drop.resource("posts", PostController())
+
+
+func downloadGNCData() {
+  }
+
+
 drop.get("version") { request in
+    downloadGNCData()
     do {
+
         //let version = try postgreSQL.execute("SELECT version()")
         //return  version
-        let connection = try postgreSQL.makeConnection()
-        let results = try postgreSQL.execute("SELECT * FROM instagram_post")
+
+
+        let session = URLSession.shared
+        for gas in gasStations.allValues {
+            let request = NSMutableURLRequest(url: URL(string:"http://gas.saliou.name/json/latest/\(gas.rawValue).json")!)
+            let task = session.dataTask(with: request as URLRequest) { (data, response, error) in
+                guard let jsonWithObjectRoot = try? JSONSerialization.jsonObject(with: data!, options: []) else {
+                    return
+                }
+                do {
+                    let connection = try postgreSQL.makeConnection()
+                    let _ = try postgreSQL.execute("DELETE FROM gas_station type='\(gas.rawValue)'")
+                } catch {
+
+                }
+                for dict in jsonWithObjectRoot as! [[String: AnyObject]] {
+                    let lat = dict["lng"] as! Float
+                    let long = dict["lat"] as! Float // lat long are wrong in the py server
+                    let name = dict["name"] as! String
+                    let price = dict["price"] as! Float
+
+                    do {
+                        let connection = try postgreSQL.makeConnection()
+
+                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('"+name+"', '\(price)', '\(lat)', '\(long)', '\(gas.rawValue)')")
+                    } catch {
+                        print("error executing")
+                        
+                    }
+                    
+                }
+            }
+            
+            task.resume()
+        }
+
         return "hello world"
     } catch {
         return "NO DB connection"
@@ -43,10 +96,10 @@ drop.post("addPost") { request in
 }
 
 
-drop.get("getPosts", Int.self) { request, userID in
+drop.get("getPrices", String.self) { request, gasType in
      do {
             let connection = try postgreSQL.makeConnection()
-            let result = try postgreSQL.execute("Select * From instagram_post where user_owner = \(userID)")
+            let result = try postgreSQL.execute("Select * From gas_station where type = 'GNC'")
 
         var newArray = [JSON]()
 
@@ -62,7 +115,10 @@ drop.get("getPosts", Int.self) { request, userID in
         }
 }
 
+drop.post("creteNewUser") { request in
 
+    return Response(status: .ok)
 
+}
 
 drop.run()
