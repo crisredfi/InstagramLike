@@ -28,6 +28,7 @@ let postgreSQL =  PostgreSQL.Database(
     password: "jYubKAYyMzhxU4fg_WgFLvp3UE"
 )
 
+
 drop.get("version") { request in
 
     do {
@@ -58,10 +59,9 @@ drop.get("version") { request in
                     do {
                      //   let connection = try postgreSQL.makeConnection()
 
-                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('hello', '123', '1234', '12354', 'GNC')")
+                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('\(name!)', '\(price!)', '\(lat!)', '\(long!)', '\(gas.rawValue)')")
                     } catch {
                         print("error executing")
-                        return "errorrr"
 
                     }
 
