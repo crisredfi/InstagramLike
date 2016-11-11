@@ -15,20 +15,22 @@ enum gasStations: String {
     case G95
     case BIE
     case GLP
-    static let allValues = [GNC, GPR, G98, GOA, NGO, GOB, GOC, BIO, G95, BIE, GLP]
-//    static let allValues = [GNC]
+  //  static let allValues = [GNC, GPR, G98, GOA, NGO, GOB, GOC, BIO, G95, BIE, GLP]
+    static let allValues = [GNC]
 
 }
 
 let drop = Droplet()
 let postgreSQL =  PostgreSQL.Database(
-    dbname: "GasStations",
-    user: "crisredfi",
-    password: ""
+    host:"ec2-54-75-230-123.eu-west-1.compute.amazonaws.com",
+    port: "5432",
+    dbname: "d39vv65oksulss",
+    user: "odvzwudlovwalc",
+    password: "jYubKAYyMzhxU4fg_WgFLvp3UE"
 )
 
 //drop.get("version") { request in
-//    downloadGNCData()
+//
 //    do {
 //
 //        //let version = try postgreSQL.execute("SELECT version()")
