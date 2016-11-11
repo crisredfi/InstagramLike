@@ -61,7 +61,8 @@ drop.get("version") { request in
                         let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('\(name)', '\(price)', '\(lat)', '\(long)', '\(gas.rawValue)')")
                     } catch {
                         print("error executing")
-                        
+                        return "errorrr"
+
                     }
 
                 }
