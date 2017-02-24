@@ -1,6 +1,7 @@
 import Vapor
 import PostgreSQL
 import HTTP
+import MapKit
 
 enum gasStations: String {
     case GNC
@@ -33,14 +34,8 @@ drop.get("version") { request in
 
     do {
 
-        //let version = try postgreSQL.execute("SELECT version()")
-        //return  version
         for gas in gasStations.allValues {
             let spotifyResponse = try drop.client.get("http://gas.saliou.name/json/latest/GNC.json")
-           // let task = session.dataTask(with: request as URLRequest) { (data, response, error) in
-           //     guard let jsonWithObjectRoot = try? JSONSerialization.jsonObject(with: data!, options: []) else {
-           //         return
-           //     }
                 do {
                     let connection = try postgreSQL.makeConnection()
                     let _ = try postgreSQL.execute("DELETE FROM gas_station type='\(gas.rawValue)'")
@@ -57,9 +52,17 @@ drop.get("version") { request in
                     let price = dict.object?["price"]?.float
 
                     do {
-                     //   let connection = try postgreSQL.makeConnection()
-
-                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type) VALUES('\(name!)', '\(price!)', '\(lat!)', '\(long!)', '\(gas.rawValue)')")
+                        let reverseGeocode = "http://maps.googleapis.com/maps/api/geocode/json?latlng=\((dict.object?["lng"]?.float)!),\((dict.object?["lat"]?.float)!)&sensor=true"
+                        let getResponse = try drop.client.get(reverseGeocode)
+                        let json2 = try JSON(bytes: getResponse.body.bytes!)
+                        let formattedaddress = json2["results"]?["formatted_address"]
+                        
+                        var adress = ""
+                        
+                        if let array = formattedaddress?.node.array {
+                            adress = array[0].string!
+                        }
+                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type, formattedAddress) VALUES('\(name!)', '\(price!)', '\(lat!)', '\(long!)', '\(gas.rawValue)', '\(adress)')")
                     } catch {
                         print("error executing")
 
@@ -67,9 +70,6 @@ drop.get("version") { request in
 
                 }
             }
-            
-       //     task.resume()
-    //
         return "hello world"
 
     } catch {
