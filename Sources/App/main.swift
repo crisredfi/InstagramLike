@@ -61,7 +61,7 @@ drop.get("version") { request in
                         if let array = formattedaddress?.node.array {
                             adress = array[0].string!
                         }
-                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type, formattedAddress) VALUES('\(name!)', '\(price!)', '\(lat!)', '\(long!)', '\(gas.rawValue)', '\(adress)')")
+                        let _ = try postgreSQL.execute("Insert INTO gas_station(name, price, lattitude, longitude, type, address) VALUES('\(name!)', '\(price!)', '\(lat!)', '\(long!)', '\(gas.rawValue)', '\(adress)')")
                     } catch {
                         print("error executing")
 
