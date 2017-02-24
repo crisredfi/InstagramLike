@@ -1,7 +1,6 @@
 import Vapor
 import PostgreSQL
 import HTTP
-import MapKit
 
 enum gasStations: String {
     case GNC
